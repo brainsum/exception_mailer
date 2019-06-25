@@ -138,7 +138,7 @@ class ErrorLog implements LoggerInterface {
     $queue_worker = $this->queueManager->createInstance('manual_exception_email');
 
     if (\in_array($level, array_values($levels), TRUE)) {
-      foreach (UserRepository::getUserEmails('maintainer') as $admin) {
+      foreach (UserRepository::getUserEmails('administrator') as $admin) {
         $data['email'] = $admin;
         $data['exception'] = '';
         // @todo: Fix the message.
