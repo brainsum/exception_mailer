@@ -9,7 +9,7 @@
  * Implements hook_mail().
  */
 function exception_mailer_mail($key, &$message, $params) {
-  if ($key === "notify_exception") {
+  if ($key === 'notify_exception') {
     $body =
     t('An exception has occurred.
 
