@@ -1,0 +1,6 @@
+exception_mailer.exception_mailer_config_form:
+  title: 'Exception mailer error config'
+  route_name: exception_mailer.exception_mailer_config_form
+  description: 'Exception mailer error config form'
+  parent: system.admin_config_system
+  weight: 99

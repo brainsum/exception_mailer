@@ -13,6 +13,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Component\Datetime\TimeInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Subscribe to thrown exceptions to send emails to admin users.
@@ -41,12 +46,67 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
   protected $queueManager;
 
   /**
-   * Constructor.
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
    */
-  public function __construct(LoggerChannelFactoryInterface $logger, QueueFactory $queue_factory, QueueWorkerManagerInterface $queue_manager) {
+  protected $configFactory;
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The date formatter service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   */
+  protected $dateFormatter;
+
+  /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger
+   *   The logger.
+   * @param \Drupal\Core\Queue\QueueFactory $queue_factory
+   *  The queue service.
+   * @param \Drupal\Core\Queue\QueueWorkerManagerInterface $queue_manager
+   *   The queue manager.
+   * @param \Drupal\Core\Config\ConfigFactory $configFactory
+   *   The configuration factory.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The current user.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
+   *   The date formatter service.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
+   */
+  public function __construct(
+    LoggerChannelFactoryInterface $logger,
+    QueueFactory $queue_factory,
+    QueueWorkerManagerInterface $queue_manager,
+    ConfigFactory $configFactory,
+    AccountInterface $account,
+    DateFormatterInterface $dateFormatter,
+    TimeInterface $time
+  ) {
     $this->logger = $logger;
     $this->queueFactory = $queue_factory;
     $this->queueManager = $queue_manager;
+    $this->configFactory = $configFactory;
+    $this->currentUser = $account;
+    $this->dateFormatter = $dateFormatter;
+    $this->time = $time;
   }
 
   /**
@@ -56,6 +116,9 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
    *   The exception event.
    */
   public function onException(GetResponseForExceptionEvent $event) {
+    $request = $event->getRequest();
+    $date = $this->dateFormatter->format($this->time->getRequestTime(), 'custom', 'j M Y - G:i T', drupal_get_user_timezone());
+
     $exception = $event->getException();
     $queue = $this->queueFactory->get('manual_exception_email', TRUE);
     $queue_worker = $this->queueManager->createInstance('manual_exception_email');
@@ -63,7 +126,13 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
       foreach (UserRepository::getUserEmails("administrator") as $admin) {
         $data['email'] = $admin;
         $data['exception'] = get_class($exception);
-        $data['message'] = $exception->getMessage();
+        $data['message'] = $exception->getMessage() . "\n" . $exception->getTraceAsString();
+        $data['site'] = $this->configFactory->get('system.site')->get('name');
+        $data['date'] = $date;
+        $data['user'] = $this->currentUser->getDisplayName();
+        $data['location'] = $request->getUri();
+        $data['referrer'] = $request->headers->get('Referer', '');
+        $data['hostname'] = $request->getClientIp();
         $queue->createItem($data);
       }
       while ($item = $queue->claimItem()) {

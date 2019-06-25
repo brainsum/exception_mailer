@@ -1,0 +1,9 @@
+exception_mailer.exception_mailer_config_form:
+  path: '/admin/config/exception-mailer/error-config'
+  defaults:
+    _form: '\Drupal\exception_mailer\Form\ExceptionMailerConfigForm'
+    _title: 'ExceptionMailerConfigForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
