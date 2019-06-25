@@ -17,6 +17,8 @@ use Drupal\Component\Utility\Xss;
 
 /**
  * Class ErrorLog.
+ *
+ * Selects errors corresponding levels specified in config to send emails.
  */
 class ErrorLog implements LoggerInterface {
   use RfcLoggerTrait;
@@ -63,7 +65,7 @@ class ErrorLog implements LoggerInterface {
    * @param \Drupal\Core\Logger\LogMessageParserInterface $parser
    *   The parser to use when extracting message variables.
    * @param \Drupal\Core\Queue\QueueFactory $queue_factory
-   *  The queue service.
+   *   The queue service.
    * @param \Drupal\Core\Queue\QueueWorkerManagerInterface $queue_manager
    *   The queue manager.
    * @param \Drupal\Core\Config\ConfigFactory $configFactory
@@ -105,24 +107,31 @@ class ErrorLog implements LoggerInterface {
         case 'EMERGENCY':
           $levels['EMERGENCY'] = RfcLogLevel::EMERGENCY;
           break;
+
         case 'ALERT':
           $levels['ALERT'] = RfcLogLevel::ALERT;
           break;
+
         case 'CRITICAL':
           $levels['CRITICAL'] = RfcLogLevel::CRITICAL;
           break;
+
         case 'ERROR':
           $levels['ERROR'] = RfcLogLevel::ERROR;
           break;
+
         case 'WARNING':
           $levels['WARNING'] = RfcLogLevel::WARNING;
           break;
+
         case 'NOTICE':
           $levels['NOTICE'] = RfcLogLevel::NOTICE;
           break;
+
         case 'INFO':
           $levels['INFO'] = RfcLogLevel::INFO;
           break;
+
         case 'DEBUG':
           $levels['DEBUG'] = RfcLogLevel::DEBUG;
           break;
@@ -152,7 +161,7 @@ class ErrorLog implements LoggerInterface {
         $data['link'] = $context['link'];
         $data['location'] = $context['request_uri'];
         $data['referrer'] = $context['referer'];
-        $data['hostname'] =  mb_substr($context['ip'], 0, 128);
+        $data['hostname'] = mb_substr($context['ip'], 0, 128);
         $queue->createItem($data);
       }
       while ($item = $queue->claimItem()) {

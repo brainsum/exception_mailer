@@ -42,7 +42,7 @@ class ExceptionMailerConfigForm extends ConfigFormBase {
         'WARNING' => $this->t('Warning'),
         'NOTICE' => $this->t('Notice'),
         'INFO' => $this->t('Info'),
-        'DEBUG' => $this->t('Debug')
+        'DEBUG' => $this->t('Debug'),
       ],
       '#default_value' => $config->get('level_type'),
     ];

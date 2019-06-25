@@ -79,7 +79,7 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger
    *   The logger.
    * @param \Drupal\Core\Queue\QueueFactory $queue_factory
-   *  The queue service.
+   *   The queue service.
    * @param \Drupal\Core\Queue\QueueWorkerManagerInterface $queue_manager
    *   The queue manager.
    * @param \Drupal\Core\Config\ConfigFactory $configFactory
