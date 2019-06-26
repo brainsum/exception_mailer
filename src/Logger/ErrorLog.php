@@ -137,8 +137,6 @@ class ErrorLog implements LoggerInterface {
       foreach (UserRepository::getUserEmails('administrator') as $admin) {
         $data['email'] = $admin;
         $data['exception'] = '';
-        // @todo: Fix the message.
-        // Ex. 'on /public://google_tag/.' to be 'on public://google_tag.'.
         $data['message'] = t(Xss::filterAdmin($message), $message_placeholders);
         $data['site'] = $this->configFactory->get('system.site')->get('name');
         $data['timestamp'] = $context['timestamp'];
