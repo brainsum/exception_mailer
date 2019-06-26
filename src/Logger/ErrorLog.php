@@ -11,7 +11,6 @@ use Drupal\Core\Queue\QueueWorkerManagerInterface;
 use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Logger\RfcLogLevel;
-use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\exception_mailer\Utility\UserRepository;
 use Drupal\Component\Utility\Xss;
 
@@ -53,13 +52,6 @@ class ErrorLog implements LoggerInterface {
   protected $configFactory;
 
   /**
-   * The date formatter service.
-   *
-   * @var \Drupal\Core\Datetime\DateFormatterInterface
-   */
-  protected $dateFormatter;
-
-  /**
    * Constructs a new ErrorLog object.
    *
    * @param \Drupal\Core\Logger\LogMessageParserInterface $parser
@@ -70,21 +62,17 @@ class ErrorLog implements LoggerInterface {
    *   The queue manager.
    * @param \Drupal\Core\Config\ConfigFactory $configFactory
    *   The configuration factory.
-   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
-   *   The date formatter service.
    */
   public function __construct(
     LogMessageParserInterface $parser,
     QueueFactory $queue_factory,
     QueueWorkerManagerInterface $queue_manager,
-    ConfigFactory $configFactory,
-    DateFormatterInterface $dateFormatter
+    ConfigFactory $configFactory
   ) {
     $this->parser = $parser;
     $this->queueFactory = $queue_factory;
     $this->queueManager = $queue_manager;
     $this->configFactory = $configFactory;
-    $this->dateFormatter = $dateFormatter;
   }
 
   /**
@@ -142,7 +130,6 @@ class ErrorLog implements LoggerInterface {
       return;
     }
 
-    $date = $this->dateFormatter->format($context['timestamp'], 'custom', 'j M Y - G:i T', drupal_get_user_timezone());
     $queue = $this->queueFactory->get('manual_exception_email', TRUE);
     $queue_worker = $this->queueManager->createInstance('manual_exception_email');
 
@@ -154,7 +141,7 @@ class ErrorLog implements LoggerInterface {
         // Ex. 'on /public://google_tag/.' to be 'on public://google_tag.'.
         $data['message'] = t(Xss::filterAdmin($message), $message_placeholders);
         $data['site'] = $this->configFactory->get('system.site')->get('name');
-        $data['date'] = $date;
+        $data['timestamp'] = $context['timestamp'];
         $data['user'] = $context['uid'];
         $data['severity'] = array_search($level, $levels, TRUE);
         $data['type'] = mb_substr($context['channel'], 0, 64);

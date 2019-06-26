@@ -37,7 +37,7 @@ function exception_mailer_mail($key, &$message, $params) {
 
     Thank you.', [
       '@site' => $params['site'],
-      '@date' => $params['date'],
+      '@date' => \Drupal::service('date.formatter')->format($params['timestamp'], 'short'),
       '@user' => $params['user'],
       '@location' => $params['location'],
       '@referrer' => $params['referrer'],

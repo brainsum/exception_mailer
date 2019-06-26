@@ -1,12 +1,12 @@
 services:
   exception_mailer.exception.subscriber:
     class: Drupal\exception_mailer\Subscribers\ExceptionEventSubscriber
-    arguments: ['@logger.factory', '@queue', '@plugin.manager.queue_worker', '@config.factory', '@current_user', '@date.formatter', '@datetime.time']
+    arguments: ['@logger.factory', '@queue', '@plugin.manager.queue_worker', '@config.factory', '@current_user', '@datetime.time']
     tags:
       - { name: event_subscriber }
   exception_mailer.log:
     class: Drupal\exception_mailer\Logger\ErrorLog
-    arguments: ['@logger.log_message_parser', '@queue', '@plugin.manager.queue_worker', '@config.factory', '@date.formatter']
+    arguments: ['@logger.log_message_parser', '@queue', '@plugin.manager.queue_worker', '@config.factory']
     tags:
     - { name: logger }
     - { name: backend_overridable }
