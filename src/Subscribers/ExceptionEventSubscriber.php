@@ -15,7 +15,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Component\Datetime\TimeInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -86,8 +85,6 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
    *   The configuration factory.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The current user.
-   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
-   *   The date formatter service.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
    */
@@ -97,7 +94,6 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
     QueueWorkerManagerInterface $queue_manager,
     ConfigFactory $configFactory,
     AccountInterface $account,
-    DateFormatterInterface $dateFormatter,
     TimeInterface $time
   ) {
     $this->logger = $logger;
@@ -105,7 +101,6 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
     $this->queueManager = $queue_manager;
     $this->configFactory = $configFactory;
     $this->currentUser = $account;
-    $this->dateFormatter = $dateFormatter;
     $this->time = $time;
   }
 
@@ -119,7 +114,6 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
    */
   public function onException(GetResponseForExceptionEvent $event) {
     $request = $event->getRequest();
-    $date = $this->dateFormatter->format($this->time->getRequestTime(), 'custom', 'j M Y - G:i T', drupal_get_user_timezone());
 
     $exception = $event->getException();
     $queue = $this->queueFactory->get('manual_exception_email', TRUE);
@@ -130,7 +124,7 @@ class ExceptionEventSubscriber implements EventSubscriberInterface {
         $data['exception'] = get_class($exception);
         $data['message'] = $exception->getMessage() . "\n" . $exception->getTraceAsString();
         $data['site'] = $this->configFactory->get('system.site')->get('name');
-        $data['date'] = $date;
+        $data['timestamp'] = $this->time->getRequestTime();
         $data['user'] = $this->currentUser->getDisplayName();
         $data['location'] = $request->getUri();
         $data['referrer'] = $request->headers->get('Referer', '');
