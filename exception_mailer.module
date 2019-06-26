@@ -48,7 +48,14 @@ function exception_mailer_mail($key, &$message, $params) {
       '@message' => $params['message'],
       '@hostname' => $params['hostname'],
     ]);
-    $message['subject'] = t('An exception/error occurred (@exception @error)', ['@exception' => $params['exception'], '@error' => $params['severity']]);
+
+    if ($params['exception']) {
+      $message['subject'] = t('An exception occurred (@exception)', ['@exception' => $params['exception']]);
+    }
+    else {
+      $message['subject'] = t('An error occurred (@severity)', ['@severity' => $params['severity']]);
+    }
+
     $message['body'][] = $body;
   }
 }
