@@ -17,7 +17,7 @@ use Drupal\Component\Utility\Xss;
 /**
  * Class ErrorLog.
  *
- * Selects errors corresponding levels specified in config to send emails.
+ * Selects errors corresponding levels specified in the config to send emails.
  */
 class ErrorLog implements LoggerInterface {
   use RfcLoggerTrait;
