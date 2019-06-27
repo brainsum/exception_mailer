@@ -15,7 +15,7 @@ class ExceptionMailerConfigForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'exception_mailer.exception_mailer_config',
+      'exception_mailer.settings',
     ];
   }
 
@@ -30,7 +30,7 @@ class ExceptionMailerConfigForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('exception_mailer.exception_mailer_config');
+    $config = $this->config('exception_mailer.settings');
     $form['level_type'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Check the level type'),
@@ -55,8 +55,8 @@ class ExceptionMailerConfigForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
-    $this->config('exception_mailer.exception_mailer_config')
-      ->set('level_type', $form_state->getValue('level_type'))
+    $this->config('exception_mailer.settings')
+      ->set('level_type', array_filter($form_state->getValue('level_type')))
       ->save();
   }
 
