@@ -86,7 +86,7 @@ class ErrorLog implements LoggerInterface {
     // style, so they can be translated too in runtime.
     $message_placeholders = $this->parser->parseMessagePlaceholders($message, $context);
 
-    $level_types = $this->configFactory->get('exception_mailer.exception_mailer_config')->get('level_type');
+    $level_types = $this->configFactory->get('exception_mailer.settings')->get('level_type');
     $level_types = array_filter($level_types);
 
     $levels = [];

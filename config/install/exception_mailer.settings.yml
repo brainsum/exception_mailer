@@ -1,5 +1,3 @@
-exception_mailer:
-  level_type:
 level_type:
   EMERGENCY: EMERGENCY
   ALERT: ALERT
