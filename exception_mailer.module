@@ -11,31 +11,23 @@
 function exception_mailer_mail($key, &$message, $params) {
   if ($key === 'notify_exception') {
     $body =
-    t('An exception has occurred.
+    t('An @exception_error has occurred.
 
     Site name: @site
-
     Date: @date
-
     User: @user
-
     Location: @location
-
     Referrer: @referrer
-
     Link: @link
-
     Type: @type
-
     Severity: @severity
-
+    Hostname: @hostname
     Exception: @exception
 
     Exception message: @message
 
-    Hostname: @hostname
-
     Thank you.', [
+      '@exception_error' => !$params['severity'] ? 'exception' : 'error',
       '@site' => $params['site'],
       '@date' => \Drupal::service('date.formatter')->format($params['timestamp'], 'short'),
       '@user' => $params['user'],
